@@ -27,14 +27,26 @@ class Handler(webapp2.RequestHandler):
 ########################################
 
 class NewPost(Handler):
-    def generate_newpost_page(self):
-        self.render("newpost.html", main_url=URL_MAIN)
+    def generate_newpost_page(self, subject, subject_error, content, content_error):
+        self.render("newpost.html", 
+            main_url=URL_MAIN, subject=subject, 
+            subject_error=subject_error, content=content, content_error=content_error)
 
     def get(self):
-        self.generate_newpost_page()
+        self.generate_newpost_page("", "", "", "")
 
     def post(self):
-        self.redirect(URL_MAIN + "/567")
+        subject = self.request.get("subject")
+        content = self.request.get("content")
+        verify_subject = len(subject) > 0
+        verify_content = len(content) > 0
+        if verify_content and verify_subject:
+        else:
+            self.generate_newpost_page( 
+                subject, 
+                "" if verify_subject else "Missing subject.", 
+                content, 
+                "" if verify_content else "Missing content.")
 
 ########################################
 # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
