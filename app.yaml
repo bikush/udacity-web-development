@@ -12,9 +12,9 @@ handlers:
 - url: /assignment-2/(signup|welcome)
   script: signup.app
 
-- url: (/|/index\.html)
+- url: /assignment-3/blog(/newpost)?
+  script: blog.app
+
+- url: (/|/index\.html|/.*)
   static_files: static/index.html
   upload: static/index.html
-
-- url: /.*
-  script: index.app
