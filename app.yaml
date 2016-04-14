@@ -16,7 +16,7 @@ handlers:
 - url: /assignment-2/(signup|welcome)
   script: signup.app
 
-- url: /assignment-3/blog(/newpost)?
+- url: /assignment-3/.*
   script: blog.app
 
 - url: (/|/index\.html|/.*)

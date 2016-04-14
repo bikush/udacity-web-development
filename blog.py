@@ -3,9 +3,10 @@ import jinja2
 import os
 
 template_dir = os.path.join(os.path.dirname(__file__), 'assignment-3')
-jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir))
+jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
 URL_MAIN = "/assignment-3/blog"
+URL_SINGLE_POST = URL_MAIN + "/(\d+)"
 URL_NEWPOST = "/assignment-3/blog/newpost"
 
 ########################################
@@ -33,7 +34,15 @@ class NewPost(Handler):
         self.generate_newpost_page()
 
     def post(self):
-        self.redirect(URL_MAIN)
+        self.redirect(URL_MAIN + "/567")
+
+########################################
+# /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
+########################################
+
+class SinglePost(Handler):
+    def get(self, post_id):
+        self.response.write("Single post page for post " + str(post_id) +  ". <a href=\""+URL_MAIN+"\">Back</a> ")
 
 ########################################
 # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
@@ -49,5 +58,6 @@ class MainPage(Handler):
 
 app = webapp2.WSGIApplication([
     (URL_NEWPOST, NewPost),
+    (URL_SINGLE_POST, SinglePost),
     (URL_MAIN, MainPage)
 ], debug=True)
