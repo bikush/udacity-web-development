@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Signup</title>
+	<style>
+		.label{{
+			text-align: right;
+			width: 110px;
+			display: inline-block;
+			margin-bottom: 5px;
+		}}
+		.error{{
+			color: red;
+			margin-left: 5px;
+		}}
+	</style>
+</head>
+<body>
+	<h2>Signup</h2>
+	<form method="post">
+		<span class="label">Username</span>
+		<input type="text" name="username" value="{username}">
+		<span class="error">{username_error}</span>
+		<br>
+
+		<span class="label">Password</span>
+		<input type="password" name="password">
+		<span class="error">{pw_error}</span>
+		<br>
+
+		<span class="label">Verify Password</span>
+		<input type="password" name="verify">
+		<span class="error">{verify_pw_error}</span>
+		<br>
+
+		<span class="label">Email(optional)</span>
+		<input type="text" name="email" value="{email}">
+		<span class="error">{email_error}</span>
+		<br>
+
+		<input type="submit">
+
+	</form>
+</body>
+</html>

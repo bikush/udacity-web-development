@@ -1,0 +1,20 @@
+runtime: python27
+api_version: 1
+threadsafe: true
+
+handlers:
+- url: /assignment-1/helloworld
+  script: helloworld.app
+
+- url: /assignment-2/rot13
+  script: rot13.app
+
+- url: /assignment-2/(signup|welcome)
+  script: signup.app
+
+- url: (/|/index\.html)
+  static_files: static/index.html
+  upload: static/index.html
+
+- url: /.*
+  script: index.app
