@@ -60,3 +60,7 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+# batch scripts for run and upload
+run.bat
+upload.bat
