@@ -2,11 +2,14 @@ import webapp2
 import jinja2
 import os
 
+from google.appengine.ext import db
+
 template_dir = os.path.join(os.path.dirname(__file__), 'assignment-3')
 jinja_env = jinja2.Environment(loader = jinja2.FileSystemLoader(template_dir), autoescape = True)
 
-URL_MAIN = "/assignment-3/blog"
-URL_SINGLE_POST = URL_MAIN + "/(\d+)"
+URL_BASE = "/assignment-3/blog"
+URL_MAIN = URL_BASE + "/?"
+URL_SINGLE_POST = URL_BASE + "/(\d+)"
 URL_NEWPOST = "/assignment-3/blog/newpost"
 
 ########################################
@@ -26,10 +29,19 @@ class Handler(webapp2.RequestHandler):
 # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
 ########################################
 
+class BlogEntry(db.Model):
+    subject = db.StringProperty( required = True )
+    content = db.TextProperty( required = True )
+    created = db.DateTimeProperty( auto_now_add = True )
+
+########################################
+# /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
+########################################
+
 class NewPost(Handler):
     def generate_newpost_page(self, subject, subject_error, content, content_error):
         self.render("newpost.html", 
-            main_url=URL_MAIN, subject=subject, 
+            main_url=URL_BASE, subject=subject, 
             subject_error=subject_error, content=content, content_error=content_error)
 
     def get(self):
@@ -41,6 +53,9 @@ class NewPost(Handler):
         verify_subject = len(subject) > 0
         verify_content = len(content) > 0
         if verify_content and verify_subject:
+            entry = BlogEntry( subject = subject, content = content )
+            entry.put()
+            self.redirect(URL_BASE + "/" + str(entry.key().id()))
         else:
             self.generate_newpost_page( 
                 subject, 
@@ -54,7 +69,15 @@ class NewPost(Handler):
 
 class SinglePost(Handler):
     def get(self, post_id):
-        self.response.write("Single post page for post " + str(post_id) +  ". <a href=\""+URL_MAIN+"\">Back</a> ")
+        entry = BlogEntry.get_by_id(int(post_id))
+        #entry = db.GqlQuery("select * from BlogEntry").get()
+        if entry:
+            self.render("singlepost.html", 
+                subject=entry.subject, 
+                content=entry.content, 
+                main_url=URL_BASE)
+        else:
+            self.redirect(URL_BASE)
 
 ########################################
 # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
@@ -62,7 +85,12 @@ class SinglePost(Handler):
 
 class MainPage(Handler):
     def get(self):
-        self.response.write("Main page. <a href=\""+URL_NEWPOST+"\">New post</a>")
+        entries = db.GqlQuery("select * from BlogEntry order by created desc")#.fetch(10)
+        self.render("mainpage.html", 
+            newpost_url=URL_NEWPOST, 
+            single_url=URL_BASE+"/",
+            title="My Blog", 
+            entries=entries)
 
 ########################################
 # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
