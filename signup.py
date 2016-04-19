@@ -8,6 +8,9 @@ PASS_RE = re.compile(r"^.{3,20}$")
 EMAIL_RE = re.compile(r"[\S]+@[\S]+.[\S]+$")
 
 
+
+
+
 class Signup(jinjahandler.Handler):
     def generate_signup(self, template_values):
         self.render("signup.html", **template_values)
@@ -18,6 +21,9 @@ class Signup(jinjahandler.Handler):
 
     def validate_username(self, username):
         return USER_RE.match(username)
+
+    def is_existing_username(self, username):
+        return False
 
     def get(self):
         self.generate_signup({
@@ -36,16 +42,17 @@ class Signup(jinjahandler.Handler):
         email = self.request.get("email")
 
         valid_username = self.validate_username(username)
+        existing_user = not valid_username or self.is_existing_username(username)
         valid_password = PASS_RE.match(password)
         valid_verify = password == verify_password
         valid_email = (email == "") or EMAIL_RE.match(email)
 
-        if valid_username and valid_password and valid_verify and valid_email:
+        if valid_username and not existing_user and valid_password and valid_verify and valid_email:
             self.handle_valid_user(username, password, email)
         else:
             self.generate_signup({
-                "username" : username if valid_username else "",
-                "username_error" : "" if valid_username else "That's not a valid username.",
+                "username" : username if valid_username and not existing_user else "",
+                "username_error" : ("" if not existing_user else "That username is taken.") if valid_username else "That's not a valid username.",
                 "pw_error" : "" if valid_password else "That's not a valid password.",
                 "verify_pw_error" : "" if not valid_password or valid_verify else "Your passwords didn't match.",
                 "email" : email if valid_email else "",
