@@ -1,6 +1,6 @@
-import webapp2
 import string
 import re
+import jinjahandler
 
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
@@ -8,11 +8,16 @@ PASS_RE = re.compile(r"^.{3,20}$")
 EMAIL_RE = re.compile(r"[\S]+@[\S]+.[\S]+$")
 
 
-class Signup(webapp2.RequestHandler):
+class Signup(jinjahandler.Handler):
     def generate_signup(self, template_values):
-        page_HTML_File = open("assignment-2/signup.html")
-        page_HTML = page_HTML_File.read().format(**template_values)
-        self.response.write(page_HTML)
+        self.render("signup.html", **template_values)
+
+    def handle_valid_user(self, username, password, email):
+        #self.redirect("/assignment-4/welcome?username="+username)
+        pass
+
+    def validate_username(self, username):
+        return USER_RE.match(username)
 
     def get(self):
         self.generate_signup({
@@ -30,13 +35,13 @@ class Signup(webapp2.RequestHandler):
         verify_password = self.request.get("verify");
         email = self.request.get("email")
 
-        valid_username = USER_RE.match(username)
+        valid_username = self.validate_username(username)
         valid_password = PASS_RE.match(password)
         valid_verify = password == verify_password
         valid_email = (email == "") or EMAIL_RE.match(email)
 
         if valid_username and valid_password and valid_verify and valid_email:
-            self.redirect("/assignment-2/welcome?username="+username)
+            self.handle_valid_user(username, password, email)
         else:
             self.generate_signup({
                 "username" : username if valid_username else "",
@@ -48,14 +53,6 @@ class Signup(webapp2.RequestHandler):
                 })
 
 
-class Welcome(webapp2.RequestHandler):
+class Welcome(jinjahandler.Handler):
     def get(self):
-        page_HTML_File = open("assignment-2/signupOK.html")
-        page_HTML = page_HTML_File.read().format(self.request.get("username"))
-        self.response.write(page_HTML)
-
-
-app = webapp2.WSGIApplication([
-    ('/assignment-2/signup', Signup),
-    ('/assignment-2/welcome', Welcome)
-], debug=True)
+        self.render("signupOK.html", username=self.request.get("username"))
