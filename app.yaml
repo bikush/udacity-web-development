@@ -16,7 +16,7 @@ handlers:
 - url: /assignment-3/.*
   script: assignment-3.app
 
-- url: /assignment-4/(signup|welcome)
+- url: /assignment-4/(signup|welcome|login|logout)
   script: assignment-4.app
 
 - url: (/|/index\.html|/.*)

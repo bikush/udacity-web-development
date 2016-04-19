@@ -13,7 +13,8 @@ def hmac_digest( value, key='aX492Di3' ):
     return str(hmac.new(key, value).hexdigest())
 
 def hmac_compare( first, second ):
-    return hmac.compare_digest( str(first), str(second) )
+    #return hmac.compare_digest( str(first), str(second) )
+    return str(first) == str(second)
 
 def generate_salt():
     return ''.join(random.choice(string.letters + string.digits) for _ in range(10))
@@ -71,16 +72,56 @@ class TokenWelcome(jinjahandler.Handler):
                 success = True
         
         if not success:
-            self.response.delete_cookie('user')
-            self.redirect('/assignment-4/signup')
+            self.redirect('/assignment-4/logout')
+
+
+
+class Login(jinjahandler.Handler):
+    def generate_login(self, template_values):
+        self.render("login.html", **template_values)
+
+    def get(self):
+        self.generate_login({
+            "username" : "",
+            "error" : ""
+            })
+
+    def post(self):
+        username = self.request.get("username")
+        password = self.request.get("password")
+
+        valid_user = False
+        existing_user = db.GqlQuery("select * from User where username='"+username+"'")
+        for user in existing_user:
+            salty_pw = salty_password(password,user.salt)
+            valid_user = str(salty_pw[0]) == str(user.password)
+            break
+
+        if valid_user:
+            username_hmac = hmac_digest(username)
+            user_cookie = str('user=%s|%s; Path=/' % (username, username_hmac))
+            self.response.headers.add_header('Set-Cookie', user_cookie)
+            self.redirect('/assignment-4/welcome')
+        else:
+            self.generate_login({
+                "username" : "",
+                "error" : "Invalid login."
+                })
+
+
+class Logout(webapp2.RequestHandler):
+    def get(self):
+        self.response.delete_cookie('user')
+        self.redirect('/assignment-4/signup')
 
 
 config = {
-    'assignment': 4,
     'jinja_env' : jinjahandler.setup_jinja('assignment-4')
     }
 
 app = webapp2.WSGIApplication([
     ('/assignment-4/signup', TokenSignup),
-    ('/assignment-4/welcome', TokenWelcome)
+    ('/assignment-4/welcome', TokenWelcome),
+    ('/assignment-4/login', Login),
+    ('/assignment-4/logout', Logout)
 ], config=config, debug=True)

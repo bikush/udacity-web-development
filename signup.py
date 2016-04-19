@@ -8,9 +8,6 @@ PASS_RE = re.compile(r"^.{3,20}$")
 EMAIL_RE = re.compile(r"[\S]+@[\S]+.[\S]+$")
 
 
-
-
-
 class Signup(jinjahandler.Handler):
     def generate_signup(self, template_values):
         self.render("signup.html", **template_values)
@@ -63,3 +60,4 @@ class Signup(jinjahandler.Handler):
 class Welcome(jinjahandler.Handler):
     def get(self):
         self.render("signupOK.html", username=self.request.get("username"))
+
