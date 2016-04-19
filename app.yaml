@@ -16,6 +16,9 @@ handlers:
 - url: /assignment-3/.*
   script: assignment-3.app
 
+- url: /assignment-4/(signup|welcome)
+  script: assignment-4.app
+
 - url: (/|/index\.html|/.*)
   static_files: static/index.html
   upload: static/index.html
