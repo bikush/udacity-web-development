@@ -21,7 +21,7 @@ def generate_salt():
 def salty_password( password, salt=None ):
     if not salt:
         salt = generate_salt()
-    return (str(hashlib.sha256(password+salt)), str(salt))
+    return (str(hashlib.sha256(password+salt).hexdigest()), str(salt))
 
 
 class TokenSignup(signup.Signup):
