@@ -42,6 +42,21 @@ class TokenSignup(signup.Signup):
         self.response.headers.add_header('Set-Cookie', user_cookie)
         self.redirect('/assignment-4/welcome')
 
+    def get(self):
+        username_hash_combo = self.request.cookies.get('user')
+        success = False
+        if username_hash_combo:
+            parts = username_hash_combo.split('|')
+            username = parts[0]
+            username_hmac = parts[1]
+            if hmac_compare(username_hmac, hmac_digest(username)):
+                self.redirect('/assignment-4/welcome')
+                success = True
+        if not success:
+            super(TokenSignup, self).get()
+
+
+
 
 class TokenWelcome(jinjahandler.Handler):
     def get(self):
