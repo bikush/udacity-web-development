@@ -8,16 +8,13 @@ libraries:
 
 handlers:
 - url: /assignment-1/helloworld
-  script: helloworld.app
+  script: assignment-1.app
 
-- url: /assignment-2/rot13
-  script: rot13.app
-
-- url: /assignment-2/(signup|welcome)
-  script: signup.app
+- url: /assignment-2/(signup|welcome|rot13)
+  script: assignment-2.app
 
 - url: /assignment-3/.*
-  script: blog.app
+  script: assignment-3.app
 
 - url: (/|/index\.html|/.*)
   static_files: static/index.html
