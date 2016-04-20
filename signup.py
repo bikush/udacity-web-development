@@ -12,7 +12,7 @@ class Signup(jinjahandler.Handler):
     def generate_signup(self, template_values):
         self.render("signup.html", **template_values)
 
-    def handle_valid_user(self, username, password, email):
+    def handle_valid_user(self, username, password, email=None):
         #self.redirect("/assignment-4/welcome?username="+username)
         pass
 
@@ -42,7 +42,7 @@ class Signup(jinjahandler.Handler):
         existing_user = not valid_username or self.is_existing_username(username)
         valid_password = PASS_RE.match(password)
         valid_verify = password == verify_password
-        valid_email = (email == "") or EMAIL_RE.match(email)
+        valid_email = (not email) or (email == "") or EMAIL_RE.match(email)
 
         if valid_username and not existing_user and valid_password and valid_verify and valid_email:
             self.handle_valid_user(username, password, email)
