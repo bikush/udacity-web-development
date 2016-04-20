@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <style>
+        .label{
+            text-align: right;
+            width: 110px;
+            display: inline-block;
+            margin-bottom: 5px;
+        }
+        .error{
+            color: red;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h2>Login</h2>
+    <form method="post">
+        <span class="label">Username</span>
+        <input type="text" name="username" value="{{username}}">
+        <br>
+
+        <span class="label">Password</span>
+        <input type="password" name="password">
+        <br>
+
+        <span class="error label">{{error}}</span>
+        <br>
+        
+        <input type="submit">
+    </form>
+</body>
+</html>
