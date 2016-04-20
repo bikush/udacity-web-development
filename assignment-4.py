@@ -1,5 +1,5 @@
 import webapp2
-import jinjahandler
+import handler
 import signup
 import users
 from google.appengine.ext import db
@@ -31,7 +31,7 @@ class TokenSignup(signup.Signup):
 # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
 ########################################
 
-class TokenWelcome(jinjahandler.Handler):
+class TokenWelcome(handler.Handler):
     def get(self):
         username = self.read_cookie('user')
         if username:
@@ -43,7 +43,7 @@ class TokenWelcome(jinjahandler.Handler):
 # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
 ########################################
 
-class Login(jinjahandler.Handler):
+class Login(handler.Handler):
     def generate_login(self, error=""):
         self.render("login.html", error=error)
 
@@ -76,7 +76,7 @@ class Logout(webapp2.RequestHandler):
 ########################################
 
 config = {
-    'jinja_env' : jinjahandler.setup_jinja('assignment-4')
+    'jinja_env' : handler.setup_jinja('assignment-4')
     }
 
 app = webapp2.WSGIApplication([

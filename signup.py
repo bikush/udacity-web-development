@@ -1,6 +1,6 @@
 import string
 import re
-import jinjahandler
+import handler
 
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
@@ -8,7 +8,7 @@ PASS_RE = re.compile(r"^.{3,20}$")
 EMAIL_RE = re.compile(r"[\S]+@[\S]+.[\S]+$")
 
 
-class Signup(jinjahandler.Handler):
+class Signup(handler.Handler):
     def generate_signup(self, template_values):
         self.render("signup.html", **template_values)
 
@@ -57,7 +57,7 @@ class Signup(jinjahandler.Handler):
                 })
 
 
-class Welcome(jinjahandler.Handler):
+class Welcome(handler.Handler):
     def get(self):
         self.render("signupOK.html", username=self.request.get("username"))
 
