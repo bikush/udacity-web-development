@@ -92,55 +92,6 @@ class Logout(webapp2.RequestHandler):
 ########################################
 # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
 ########################################
-
-LAST_10_KEY = 'last10'
-LAST_10_TIME_KEY = 'last10_time'
-
-def get_last_10_posts():
-    posts = memcache.get( LAST_10_KEY )
-    posts_time = memcache.get( LAST_10_TIME_KEY )
-    if posts == None or posts_time == None:
-        posts = BlogEntry.get_last_10()
-        posts_time = time.time()
-        memcache.set(LAST_10_KEY, posts)
-        memcache.set(LAST_10_TIME_KEY, posts_time)
-    return posts, posts_time
-
-def build_post_cache_keys( post_id ):
-    cache_key = 'post'+str(post_id)
-    return (cache_key,cache_key + '_time')
-
-def get_post_by_id(post_id):
-    cache_key, cache_key_time = build_post_cache_keys(post_id)
-    post = memcache.get(cache_key)
-    post_time = memcache.get(cache_key_time)
-    if post == None or post_time == None:
-        post = BlogEntry.get_by_id(int(post_id))
-        post_time = time.time()
-        memcache.set(cache_key, post)
-        memcache.set(cache_key_time, post_time)
-    return post, post_time
-
-def create_post(subject, content):
-    entry = BlogEntry( subject = subject, content = content )
-    entry.put()
-    
-    cache_key, cache_key_time = build_post_cache_keys( str(entry.key().id()) )
-    memcache.set(cache_key, entry)
-    memcache.set(cache_key_time, time.time())
-
-    posts = memcache.get( LAST_10_KEY )
-    if posts:
-        posts = [entry] + posts[:-1]
-        memcache.set( LAST_10_KEY, posts )
-        memcache.set( LAST_10_TIME_KEY, time.time() )
-
-    return entry
-
-########################################
-# /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
-######################################## 
-
 class Flusher(handler.Handler):
     def get(self):
         memcache.flush_all()
@@ -165,7 +116,7 @@ class NewPost(handler.Handler):
         verify_subject = len(subject) > 0
         verify_content = len(content) > 0
         if verify_content and verify_subject:
-            entry = create_post(subject,content)
+            entry = BlogEntry.create_post(subject,content)
             self.redirect(URL_BASE + "/" + str(entry.key().id()))
         else:
             self.generate_newpost_page( 
@@ -183,7 +134,7 @@ def build_cache_time_str( cache_time ):
 
 class SinglePost(handler.Handler):
     def get(self, post_id):
-        post, post_time = get_post_by_id(int(post_id))
+        post, post_time = BlogEntry.get_post_by_id(int(post_id))
         if post:
             self.render("singlepost.html", 
                 subject=post.subject, 
@@ -200,7 +151,7 @@ class SinglePost(handler.Handler):
 
 class MainPage(handler.Handler):
     def get(self):
-        entries, cache_time = get_last_10_posts()
+        entries, cache_time = BlogEntry.get_last_10_posts()
         self.render("mainpage.html", 
             newpost_url=URL_NEWPOST, 
             single_url=URL_BASE+"/",
@@ -219,7 +170,7 @@ class JsonBlogSingleAPI(webapp2.RequestHandler):
             self.response.headers.add_header("Content-Type", "application/json")
             self.response.out.write(entry.to_json())
         else:
-            self.redirect(URL_MAIN)
+            self.redirect(URL_BASE)
 
 ########################################
 # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
@@ -232,7 +183,7 @@ class JsonBlogAllAPI(webapp2.RequestHandler):
             self.response.headers.add_header("Content-Type", "application/json")
             self.response.out.write(entries)
         else:
-            self.redirect(URL_MAIN)
+            self.redirect(URL_BASE)
 
 ########################################
 # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
