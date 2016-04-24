@@ -4,6 +4,7 @@ import signup
 import users
 
 from blogentry import BlogEntry
+from loginout import Login, Logout
 
 from google.appengine.ext import db
 
@@ -53,38 +54,6 @@ class TokenWelcome(handler.Handler):
             self.render("signupOK.html", username=username)
         else:
             self.redirect( URL_LOGOUT )
-
-########################################
-# /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
-########################################
-
-class Login(handler.Handler):
-    def generate_login(self, error=""):
-        self.render("login.html", error=error)
-
-    def get(self):
-        self.generate_login()
-
-    def post(self):
-        username = self.request.get("username")
-        password = self.request.get("password")
-
-        user = users.User.find_and_check_user( username, password )
-
-        if user:
-            self.set_secure_cookie('user', username)
-            self.redirect( URL_WELCOME )
-        else:
-            self.generate_login("Invalid login.")
-
-########################################
-# /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
-########################################
-
-class Logout(webapp2.RequestHandler):
-    def get(self):
-        self.response.delete_cookie('user')
-        self.redirect( URL_SIGNUP )
 
 ########################################
 # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
@@ -174,7 +143,9 @@ class JsonBlogAllAPI(webapp2.RequestHandler):
 ########################################
 
 config = {
-    'jinja_env' : handler.setup_jinja('assignment-5')
+    'jinja_env' : handler.setup_jinja('assignment-5'),
+    'url_signup' : URL_SIGNUP,
+    'url_welcome' : URL_WELCOME
     }
 
 app = webapp2.WSGIApplication([

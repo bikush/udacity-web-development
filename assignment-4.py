@@ -2,7 +2,9 @@ import webapp2
 import handler
 import signup
 import users
+
 from google.appengine.ext import db
+from loginout import Login, Logout
 
 ########################################
 # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
@@ -43,40 +45,10 @@ class TokenWelcome(handler.Handler):
 # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
 ########################################
 
-class Login(handler.Handler):
-    def generate_login(self, error=""):
-        self.render("login.html", error=error)
-
-    def get(self):
-        self.generate_login()
-
-    def post(self):
-        username = self.request.get("username")
-        password = self.request.get("password")
-
-        user = users.User.find_and_check_user( username, password )
-
-        if user:
-            self.set_secure_cookie('user', username)
-            self.redirect('/assignment-4/welcome')
-        else:
-            self.generate_login("Invalid login.")
-
-########################################
-# /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
-########################################
-
-class Logout(webapp2.RequestHandler):
-    def get(self):
-        self.response.delete_cookie('user')
-        self.redirect('/assignment-4/signup')
-
-########################################
-# /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
-########################################
-
 config = {
-    'jinja_env' : handler.setup_jinja('assignment-4')
+    'jinja_env' : handler.setup_jinja('assignment-4'),
+    'url_signup' : '/assignment-4/signup',
+    'url_welcome' : '/assignment-4/welcome'
     }
 
 app = webapp2.WSGIApplication([
