@@ -1,13 +1,10 @@
 import webapp2
 import handler
-import signup
-import users
 import time
 
 from blogentry import BlogEntry
-from loginout import Login, Logout
+from loginout import Login, Logout, TokenSignup, TokenWelcome
 
-from google.appengine.ext import db
 from google.appengine.api import memcache
 
 URL_BASE = "/assignment-6/blog"
@@ -22,41 +19,6 @@ URL_LOGIN = URL_BASE + "/login"
 URL_SIGNUP = URL_BASE + "/signup"
 URL_FLUSH = URL_BASE + "/flush"
 
-
-########################################
-# /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
-########################################
-
-class TokenSignup(signup.Signup):
-    def is_existing_username(self, username):
-        existing_user = db.GqlQuery("select * from User where username='"+username+"'").count()
-        return existing_user > 0
-
-    def handle_valid_user(self, username, password, email):
-        new_user = users.User.create_user(username, password, email)
-        new_user.put()
-
-        self.set_secure_cookie('user', username)
-        self.redirect( URL_WELCOME )
-
-    def get(self):
-        username = self.read_cookie('user')
-        if username:
-            self.redirect( URL_WELCOME )
-        else:
-            super(TokenSignup, self).get()
-
-########################################
-# /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
-########################################
-
-class TokenWelcome(handler.Handler):
-    def get(self):
-        username = self.read_cookie('user')
-        if username:
-            self.render("signupOK.html", username=username)
-        else:
-            self.redirect( URL_LOGOUT )
 
 ########################################
 # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
@@ -162,7 +124,8 @@ class JsonBlogAllAPI(webapp2.RequestHandler):
 config = {
     'jinja_env' : handler.setup_jinja('assignment-6'),
     'url_signup' : URL_SIGNUP,
-    'url_welcome' : URL_WELCOME
+    'url_welcome' : URL_WELCOME,
+    'url_logout' : URL_LOGOUT
     }
 
 app = webapp2.WSGIApplication([
