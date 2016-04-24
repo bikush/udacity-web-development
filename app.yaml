@@ -22,6 +22,9 @@ handlers:
 - url: /assignment-5/.*
   script: assignment-5.app
 
+- url: /assignment-6/.*
+  script: assignment-6.app
+
 - url: (/|/index\.html|/.*)
   static_files: static/index.html
   upload: static/index.html
