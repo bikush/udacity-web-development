@@ -2,6 +2,8 @@ import webapp2
 import jinja2
 import os
 
+from blogentry import BlogEntry
+
 from google.appengine.ext import db
 
 template_dir = os.path.join(os.path.dirname(__file__), 'assignment-3')
@@ -24,15 +26,6 @@ class Handler(webapp2.RequestHandler):
         return t.render(params)
     def render(self, template, **kw): 
         self.write(self.render_str(template, **kw))
-
-########################################
-# /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
-########################################
-
-class BlogEntry(db.Model):
-    subject = db.StringProperty( required = True )
-    content = db.TextProperty( required = True )
-    created = db.DateTimeProperty( auto_now_add = True )
 
 ########################################
 # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
@@ -70,7 +63,6 @@ class NewPost(Handler):
 class SinglePost(Handler):
     def get(self, post_id):
         entry = BlogEntry.get_by_id(int(post_id))
-        #entry = db.GqlQuery("select * from BlogEntry").get()
         if entry:
             self.render("singlepost.html", 
                 subject=entry.subject, 
@@ -85,7 +77,7 @@ class SinglePost(Handler):
 
 class MainPage(Handler):
     def get(self):
-        entries = db.GqlQuery("select * from BlogEntry order by created desc")#.fetch(10)
+        entries = BlogEntry.get_last_10()
         self.render("mainpage.html", 
             newpost_url=URL_NEWPOST, 
             single_url=URL_BASE+"/",

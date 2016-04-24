@@ -1,8 +1,9 @@
 import webapp2
 import handler
-import json
 import signup
 import users
+
+from blogentry import BlogEntry
 
 from google.appengine.ext import db
 
@@ -89,25 +90,6 @@ class Logout(webapp2.RequestHandler):
 # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
 ########################################
 
-class BlogEntry(db.Model):
-    subject = db.StringProperty( required = True )
-    content = db.TextProperty( required = True )
-    created = db.DateTimeProperty( auto_now_add = True )
-    modified = db.DateTimeProperty( auto_now_add = True )
-
-    def to_object(self):
-        return { "subject" : self.subject,
-                 "content" : self.content,
-                 "created" : self.created.strftime("%c"),
-                 "last_modified" : self.modified.strftime("%c") }
-
-    def to_json(self):
-        return json.dumps( self.to_object() )
-
-########################################
-# /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
-########################################
-
 class NewPost(handler.Handler):
     def generate_newpost_page(self, subject, subject_error, content, content_error):
         self.render("newpost.html", 
@@ -140,7 +122,6 @@ class NewPost(handler.Handler):
 class SinglePost(handler.Handler):
     def get(self, post_id):
         entry = BlogEntry.get_by_id(int(post_id))
-        #entry = db.GqlQuery("select * from BlogEntry").get()
         if entry:
             self.render("singlepost.html", 
                 subject=entry.subject, 
@@ -155,7 +136,7 @@ class SinglePost(handler.Handler):
 
 class MainPage(handler.Handler):
     def get(self):
-        entries = db.GqlQuery("select * from BlogEntry order by created desc")#.fetch(10)
+        entries = BlogEntry.get_last_10()
         self.render("mainpage.html", 
             newpost_url=URL_NEWPOST, 
             single_url=URL_BASE+"/",
@@ -181,11 +162,10 @@ class JsonBlogSingleAPI(webapp2.RequestHandler):
 
 class JsonBlogAllAPI(webapp2.RequestHandler):
     def get(self):
-        entries = db.GqlQuery("select * from BlogEntry order by created desc").fetch(10)
+        entries = BlogEntry.get_last_10_json()
         if entries:
-            all_items = [ enrty.to_object() for enrty in entries ]
             self.response.headers.add_header("Content-Type", "application/json")
-            self.response.out.write(json.dumps(all_items))
+            self.response.out.write(entries)
         else:
             self.redirect(URL_MAIN)
 
