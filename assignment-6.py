@@ -1,11 +1,11 @@
 import webapp2
 import handler
-import time
 
 from blogentry import BlogEntry
 from loginout import Login, Logout, TokenSignup, TokenWelcome
 
 from google.appengine.api import memcache
+from blog import NewPost, CachedMainPage, CachedSinglePost
 
 URL_BASE = "/assignment-6/blog"
 URL_MAIN = URL_BASE + "/?"
@@ -28,68 +28,6 @@ class Flusher(handler.Handler):
     def get(self):
         memcache.flush_all()
         self.redirect(URL_BASE)
-
-########################################
-# /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
-########################################   
-
-class NewPost(handler.Handler):
-    def generate_newpost_page(self, subject, subject_error, content, content_error):
-        self.render("newpost.html", 
-            main_url=URL_BASE, subject=subject, 
-            subject_error=subject_error, content=content, content_error=content_error)
-
-    def get(self):
-        self.generate_newpost_page("", "", "", "")
-
-    def post(self):
-        subject = self.request.get("subject")
-        content = self.request.get("content")
-        verify_subject = len(subject) > 0
-        verify_content = len(content) > 0
-        if verify_content and verify_subject:
-            entry = BlogEntry.create_post(subject,content)
-            self.redirect(URL_BASE + "/" + str(entry.key().id()))
-        else:
-            self.generate_newpost_page( 
-                subject, 
-                "" if verify_subject else "Missing subject.", 
-                content, 
-                "" if verify_content else "Missing content.")
-
-########################################
-# /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
-########################################
-
-def build_cache_time_str( cache_time ):
-    return "Queried %.2f seconds ago" % (time.time() - cache_time)
-
-class SinglePost(handler.Handler):
-    def get(self, post_id):
-        post, post_time = BlogEntry.get_post_by_id(int(post_id))
-        if post:
-            self.render("singlepost.html", 
-                subject=post.subject, 
-                content=post.content, 
-                main_url=URL_BASE,
-                cache_time=build_cache_time_str(post_time)
-                )
-        else:
-            self.redirect(URL_BASE)
-
-########################################
-# /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
-########################################
-
-class MainPage(handler.Handler):
-    def get(self):
-        entries, cache_time = BlogEntry.get_last_10_posts()
-        self.render("mainpage.html", 
-            newpost_url=URL_NEWPOST, 
-            single_url=URL_BASE+"/",
-            title="My Blog", 
-            entries=entries,
-            cache_time=build_cache_time_str(cache_time) )
 
 ########################################
 # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
@@ -125,13 +63,15 @@ config = {
     'jinja_env' : handler.setup_jinja('assignment-6'),
     'url_signup' : URL_SIGNUP,
     'url_welcome' : URL_WELCOME,
-    'url_logout' : URL_LOGOUT
+    'url_logout' : URL_LOGOUT,
+    'url_base' : URL_BASE,
+    'url_newpost' : URL_NEWPOST
     }
 
 app = webapp2.WSGIApplication([
     (URL_NEWPOST, NewPost),
-    (URL_SINGLE_POST, SinglePost),
-    (URL_MAIN, MainPage),
+    (URL_SINGLE_POST, CachedSinglePost),
+    (URL_MAIN, CachedMainPage),
     (URL_JSON_SINGLE, JsonBlogSingleAPI),
     (URL_JSON_ALL, JsonBlogAllAPI),
     (URL_SIGNUP + "/?", TokenSignup),
