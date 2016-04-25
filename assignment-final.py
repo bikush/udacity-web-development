@@ -5,6 +5,7 @@ import logging
 from loginout import Login, Logout, TokenSignup, TokenWelcome
 
 from google.appengine.ext import db
+from google.appengine.api import memcache
 
 URL_BASE = "/assignment-final/wiki"
 URL_LOGOUT = URL_BASE + "/logout"
@@ -21,7 +22,19 @@ class WikiEntry(db.Model):
 
     @classmethod
     def get_latest_entry(cls, path):
-        return cls.all().filter("path =", path).order("-created").get()
+        wiki = memcache.get(path)
+        if wiki == None:
+            wiki = cls.all().filter("path =", path).order("-created").get()
+            if wiki:
+                memcache.set(path, wiki)
+        return wiki
+
+    @classmethod
+    def create_entry(cls, path, content):
+        entry = WikiEntry( path = path, content = content   )
+        entry.put()
+        memcache.set(path, entry)
+        return entry
 
 class WikiRead(handler.Handler):
     def get(self, *args):
@@ -66,7 +79,16 @@ class WikiEdit(handler.Handler):
         self.render("wiki_edit.html", **edit_config)
 
     def post(self, *args):
-        self.redirect(URL_BASE)
+        username = self.read_cookie('user')
+        if not username:
+            self.redirect(URL_BASE)
+            return
+
+        path = '/' if args == None or args[0] == None else args[0]
+        content = self.request.get("content")
+        WikiEntry.create_entry( path, content )
+
+        self.redirect(URL_BASE + path)
 
 
 config = {
