@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{title}}</title>
+    <style type="text/css">
+    body {
+        width:90%;
+        margin: 0px auto;
+    }
+    header {
+        margin: 10px 0px;
+        height: 15px;
+    }
+    .headElement{
+        float: right;
+        width: 100px;
+        font-size: 0.9em;
+    }
+    .headElement a {
+        color:#888;
+        text-decoration: none;
+    }
+    .headElement a:hover,a:active{
+        color: #BBB;
+        text-decoration: none;
+    }
+    header + hr {
+        clear: right;
+    }
+    .row {
+        height: 50px;
+    }
+    .colDate {
+        float: left;
+        width: 150px;
+        height: inherit;
+    }
+    .colSummary {
+        float:left;
+        height: inherit;
+    }
+    .colVE {
+        float:right;
+        height: inherit;
+    }
+    .history {
+        width: 80%;
+        margin: 20px auto;
+    }
+    .row:nth-child(even) {
+        background-color: #EED;
+    }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="headElement">
+            {% if username %}
+                {{ username }}(<a href="{{logout_link}}">logout</a>)
+            {% else %}
+                <a href="{{login_link}}">login</a> | <a href="{{signup_link}}">signup</a>
+            {% endif %}
+        </div>
+        <div class="headElement">
+            {% if username %}
+                <a href="{{edit_link}}">edit</a> |            
+            {% endif %}
+            <a href="{{view_link}}">view</a>
+        </div>
+    </header>
+    <hr>
+        
+    <div class="history">
+        {% for entry in entries %}
+        <div class="row">
+            <div class="colDate">{{ entry.date }}</div>
+            <div class="colSummary">{{ entry.summary }}</div>
+            <div class="colVE"><a href="{{entry.view_url}}">view</a>
+            {% if username %} | <a href="{{entry.edit_url}}">edit</a>{% endif %}</div>
+        </div>
+        {% endfor %}
+    </div>
+
+</body>
+</html>
