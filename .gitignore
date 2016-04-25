@@ -64,3 +64,6 @@ target/
 # batch scripts for run and upload
 run.bat
 upload.bat
+
+# webapp2
+index.yaml # autocreated
