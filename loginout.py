@@ -5,6 +5,12 @@ import users
 
 from google.appengine.ext import db
 
+# Required in app config dictionary:
+# url_login_success - redirect on successful login
+# url_logout - wisit this link to logout
+# url_logout_redirect - redirect page upon logout
+
+
 ########################################
 # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #
 ########################################
@@ -19,12 +25,12 @@ class TokenSignup(signup.Signup):
         new_user.put()
 
         self.set_secure_cookie('user', username)
-        self.redirect( self.app.config.get('url_welcome') )
+        self.redirect( self.app.config.get('url_login_success') )
 
     def get(self):
         username = self.read_cookie('user')
         if username:
-            self.redirect( self.app.config.get('url_welcome') )
+            self.redirect( self.app.config.get('url_login_success') )
         else:
             super(TokenSignup, self).get()
 
@@ -59,7 +65,7 @@ class Login(handler.Handler):
 
         if user:
             self.set_secure_cookie('user', username)
-            self.redirect( self.app.config.get('url_welcome') )
+            self.redirect( self.app.config.get('url_login_success') )
         else:
             self.generate_login("Invalid login.")
 
@@ -70,7 +76,7 @@ class Login(handler.Handler):
 class Logout(webapp2.RequestHandler):
     def get(self):
         self.response.delete_cookie('user')
-        self.redirect( self.app.config.get('url_signup') )
+        self.redirect( self.app.config.get('url_logout_redirect') )
 
 ########################################
 # /\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\/\ #

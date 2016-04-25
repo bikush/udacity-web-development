@@ -61,9 +61,9 @@ class JsonBlogAllAPI(webapp2.RequestHandler):
 
 config = {
     'jinja_env' : handler.setup_jinja('assignment-6'),
-    'url_signup' : URL_SIGNUP,
-    'url_welcome' : URL_WELCOME,
+    'url_login_success' : URL_WELCOME,
     'url_logout' : URL_LOGOUT,
+    'url_logout_redirect' : URL_SIGNUP,
     'url_base' : URL_BASE,
     'url_newpost' : URL_NEWPOST
     }
