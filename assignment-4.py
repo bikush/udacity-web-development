@@ -6,8 +6,8 @@ from loginout import Login, Logout, TokenSignup, TokenWelcome
 config = {
     'jinja_env' : handler.setup_jinja('assignment-4'),
     'url_login_success' : '/assignment-4/welcome',
-    'url_logout' : '/assignment-4/logout'
-    'url_logout_redirect' : '/assignment-4/signup',
+    'url_logout' : '/assignment-4/logout',
+    'url_logout_redirect' : '/assignment-4/signup'
     }
 
 app = webapp2.WSGIApplication([
