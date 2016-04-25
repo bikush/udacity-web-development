@@ -7,23 +7,8 @@ libraries:
   version: latest
 
 handlers:
-- url: /assignment-1/helloworld
-  script: assignment-1.app
-
-- url: /assignment-2/(signup|welcome|rot13)
-  script: assignment-2.app
-
-- url: /assignment-3/.*
-  script: assignment-3.app
-
-- url: /assignment-4/(signup|welcome|login|logout)
-  script: assignment-4.app
-
-- url: /assignment-5/.*
-  script: assignment-5.app
-
-- url: /assignment-6/.*
-  script: assignment-6.app
+- url: /assignment-([0-9a-z]+)/.*
+  script: assignment-\1.app
 
 - url: (/|/index\.html|/.*)
   static_files: static/index.html
