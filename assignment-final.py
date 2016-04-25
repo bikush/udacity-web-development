@@ -10,6 +10,7 @@ URL_BASE = "/assignment-final/wiki"
 URL_LOGOUT = URL_BASE + "/logout"
 URL_LOGIN = URL_BASE + "/login"
 URL_SIGNUP = URL_BASE + "/signup"
+URL_EDIT = URL_BASE + "/_edit"
 PAGE_RE = r'(/(?:[a-zA-Z0-9_-]+/?)*)?'
 
 
@@ -24,27 +25,48 @@ class WikiEntry(db.Model):
 
 class WikiRead(handler.Handler):
     def get(self, *args):
-        path = '/' if args == None or args[0] == None else args[0]
-
-        entry = WikiEntry.get_latest_entry(path)
-        content = ''
-        if not entry:
-            content = '<h2>NO CONTENT</h2><br>' + str(path)
-        else:
-            content = entry.content
-
         username = self.read_cookie('user')
-        wiki_config = {
-            'edit_link' : 'edit',
-            'history_link' : 'history',
-            'logout_link' : URL_LOGOUT,
-            'login_link' : URL_LOGIN,
-            'signup_link' : URL_SIGNUP,
-            'username' : username,
-            'content' : content
-        }
-        self.render("wiki_read.html", **wiki_config)
 
+        path = '/' if args == None or args[0] == None else args[0]
+        entry = WikiEntry.get_latest_entry(path)
+        if not entry and username:
+            self.redirect(URL_EDIT + path)
+        else:
+            content = '' if not entry else entry.content
+            wiki_config = {
+                'edit_link' : URL_EDIT + str(path),
+                'history_link' : 'history',
+                'logout_link' : URL_LOGOUT,
+                'login_link' : URL_LOGIN,
+                'signup_link' : URL_SIGNUP,
+                'username' : username,
+                'content' : content
+            }
+            self.render("wiki_read.html", **wiki_config)
+
+
+class WikiEdit(handler.Handler):
+    def get(self, *args):
+        username = self.read_cookie('user')
+        if not username:
+            self.redirect(URL_BASE)
+            return
+        
+        path = '/' if args == None or args[0] == None else args[0]
+        entry = WikiEntry.get_latest_entry(path)
+        content = '' if not entry else entry.content
+
+        edit_config = {
+                'main_link' : URL_BASE + str(path) if entry else URL_BASE,
+                'logout_link' : URL_LOGOUT,
+                'path' : path,
+                'username' : username,
+                'content' : content
+            }
+        self.render("wiki_edit.html", **edit_config)
+
+    def post(self, *args):
+        self.redirect(URL_BASE)
 
 
 config = {
@@ -58,5 +80,6 @@ app = webapp2.WSGIApplication([
     (URL_SIGNUP + "/?", TokenSignup),
     (URL_LOGIN + "/?", Login),
     (URL_LOGOUT + "/?", Logout),
+    (URL_EDIT + PAGE_RE, WikiEdit),
     (URL_BASE + PAGE_RE, WikiRead)
 ], config=config, debug=True)

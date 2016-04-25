@@ -1,37 +1,52 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>New post</title>
+    <title>{{title}}</title>
     <style type="text/css">
-        textarea {
-            width: 500px;
-            height: 300px;
-        }
-        div {
-            margin-top: 15px;
-        }
-        .error{
-            color: red;
-            margin-left: 5px;
-        }
+    body {
+        width:90%;
+        margin: 0px auto;
+    }
+    header {
+        margin: 10px 0px;
+        height: 15px;
+    }
+    .headElement{
+        float: right;
+        width: 100px;
+        font-size: 0.9em;
+    }
+    .headElement a {
+        color:#888;
+        text-decoration: none;
+    }
+    .headElement a:hover,a:active{
+        color: #BBB;
+        text-decoration: none;
+    }
+    header + hr {
+        clear: right;
+    }
     </style>
 </head>
 <body>
-    <h2>New Post</h2>
+    <header>
+        <div class="headElement">
+            {{ username }}(<a href="{{logout_link}}">logout</a>)           
+        </div>
+    </header>
+    <hr>
+
+    <h2>Page for {{path}}</h2>
     <form method="post">
-        <div>Subject</div>
-        <input type="text" name="subject" value="{{subject}}">
-        <span class="error">{{subject_error}}</span>
-        <div>Content</div>
         <textarea name="content">{{content}}</textarea>
-        <br>
-        <span class="error">{{content_error}}</span>
         <br>
         <input type="submit">
     </form>
     <div>
-        <a href="{{main_url}}">Go Back</a> (discard all changes)
+        <a href="{{main_link}}">Go Back</a> (discard all changes)
     </div>
 </body>
 </html>
